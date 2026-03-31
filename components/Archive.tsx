@@ -68,7 +68,7 @@ const ArchiveImage = ({ photo, onClick, viewMode }: { photo: Photo; onClick: () 
         <img
             src={squareUrl}
             srcSet={generateArchiveSrcSet(photo.url)}
-            sizes="200px"
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 400px"
             alt={photo.title}
             onLoad={() => setIsLoaded(true)}
             className={`w-full h-full object-cover transition-all duration-700 ease-fluid group-hover:scale-110 dark:opacity-90 dark:group-hover:opacity-100 ${

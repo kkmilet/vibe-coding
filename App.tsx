@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
+import './styles/scroll-animations.css';
 import NavBar from './components/NavBar';
 import Hero from './components/Hero';
 import BentoGrid from './components/BentoGrid';

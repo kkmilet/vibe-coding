@@ -1,0 +1,31 @@
+:root {
+  --anim-duration: 450ms;
+  --anim-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --anim-translate: 24px;
+  --stagger-interval: 60ms;
+}
+
+/* Base class: hidden state */
+.anim-fade-up {
+  opacity: 0;
+  transform: translateY(var(--anim-translate));
+  transition:
+    opacity var(--anim-duration) var(--anim-ease),
+    transform var(--anim-duration) var(--anim-ease);
+  transition-delay: calc(var(--stagger-index, 0) * var(--stagger-interval));
+}
+
+/* Visible state */
+.anim-fade-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Reduced motion: skip animation */
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-up {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

@@ -182,6 +182,7 @@ const BentoGrid: React.FC<BentoGridProps> = ({ id, title, items, onPhotoClick })
   return (
     <section
       id={id}
+      ref={ref}
       className="pb-20 pt-20 bg-apple-bg dark:bg-black relative z-20 transition-colors duration-700"
     >
       <div className="max-w-[1800px] mx-auto px-4 md:px-8">

@@ -195,7 +195,7 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
       {/* Optimized Blurred Background */}
       <div className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden">
         <div 
-          className={`absolute inset-0 bg-cover bg-center transition-all duration-[1.5s] ease-out blur-[80px] opacity-40 dark:opacity-30 transform ${isVisible ? 'scale-110' : 'scale-150'}`}
+          className={`absolute inset-0 bg-cover bg-center transition-all duration-[1.5s] ease-out blur-[100px] opacity-40 dark:opacity-30 transform ${isVisible ? 'scale-110' : 'scale-150'}`}
           style={{ 
             backgroundImage: `url(${bgUrl})`,
           }}

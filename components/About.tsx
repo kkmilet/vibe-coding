@@ -116,6 +116,9 @@ const About: React.FC = () => {
 
                 {/* Gradient Fade at bottom of image: Matches theme */}
                 <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-apple-bg dark:from-black to-transparent transition-colors duration-500"></div>
+
+                {/* Frosted rim overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-apple-bg/30 dark:from-black/30 to-transparent backdrop-blur-[2px] pointer-events-none" />
              </div>
           </div>
 

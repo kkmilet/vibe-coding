@@ -149,6 +149,17 @@ const GridImage = ({ photo, onClick, priority = false }: { photo: Photo; onClick
           />
         )}
 
+        {/* Subtle radial glow on hover */}
+        <div
+          className={`absolute inset-0 rounded-sm md:rounded-xl pointer-events-none transition-opacity duration-500 ${
+            isHovering ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, transparent 70%)',
+            boxShadow: 'inset 0 0 60px rgba(255,255,255,0.05)',
+          }}
+        />
+
         {/* Hover Overlay */}
         <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/80 via-black/10 to-transparent transition-opacity duration-700 ease-fluid
                         opacity-0 group-hover:opacity-100 pointer-events-none" />

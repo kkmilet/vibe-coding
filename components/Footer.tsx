@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer id="contact" className="bg-apple-bg dark:bg-black pb-40 md:pb-12 pt-24 text-apple-gray text-xs md:text-sm font-light transition-colors duration-500 border-t border-gray-200 dark:border-white/5 relative">
+    <footer id="contact" className="bg-apple-bg dark:bg-black pb-40 md:pb-12 pt-24 text-apple-gray text-xs md:text-sm font-light transition-colors duration-500 border-t border-gray-200 dark:border-white/5 relative noise-texture">
       <div ref={ref} className={`anim-fade-up ${isVisible ? 'is-visible' : ''}`}>
         <div className="max-w-[1800px] mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex flex-col items-center md:items-start gap-2" style={{ '--stagger-index': 0 } as React.CSSProperties}>

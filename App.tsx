@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import './styles/scroll-animations.css';
+import './styles/noise-texture.css';
 import NavBar from './components/NavBar';
 import Hero from './components/Hero';
 import BentoGrid from './components/BentoGrid';
@@ -64,7 +65,7 @@ const Content: React.FC = () => {
       <NavBar />
       <main>
         <Hero />
-        <div className="relative z-10">
+        <div className="relative z-10 noise-texture">
            <BentoGrid
              id="portfolio"
              title={t.grid.header}

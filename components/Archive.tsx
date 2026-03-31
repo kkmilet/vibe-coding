@@ -76,7 +76,16 @@ const ArchiveImage = ({ photo, onClick, viewMode }: { photo: Photo; onClick: () 
             }`}
         />
       )}
-      
+
+      {/* Subtle glow on hover */}
+      <div
+        className={`absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-500 opacity-0 group-hover:opacity-100`}
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.12) 0%, transparent 70%)',
+          boxShadow: 'inset 0 0 40px rgba(255,255,255,0.03)',
+        }}
+      />
+
       {/* Overlay info */}
       <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px] transition-opacity duration-500 ease-fluid
                       opacity-0 group-hover:opacity-100">
@@ -144,7 +153,7 @@ const Archive: React.FC<ArchiveProps> = ({ items, onPhotoClick }) => {
           </div>
 
           {/* Mode Toggle */}
-          <div className="bg-white dark:bg-white/5 p-1.5 rounded-xl flex text-sm font-medium shadow-sm dark:shadow-none backdrop-blur-md">
+          <div className="bg-white/80 dark:bg-white/10 p-1.5 rounded-xl flex text-sm font-medium shadow-sm dark:shadow-none backdrop-blur-xl">
             <button
               onClick={() => handleModeChange('time')}
               className={`px-6 py-2.5 rounded-lg transition-all duration-500 ease-fluid flex items-center gap-2 ${
@@ -175,10 +184,10 @@ const Archive: React.FC<ArchiveProps> = ({ items, onPhotoClick }) => {
           <div className="flex gap-3 min-w-max">
             <button
               onClick={() => setSelectedFilter(null)}
-              className={`px-5 py-2 rounded-full border text-xs uppercase tracking-widest transition-all duration-300 ${
+              className={`px-5 py-2 rounded-full border text-xs uppercase tracking-widest transition-all duration-300 backdrop-blur-md bg-white/60 dark:bg-white/5 ${
                 selectedFilter === null
                   ? 'bg-apple-dark dark:bg-white text-white dark:text-black border-transparent scale-105'
-                  : 'bg-white dark:bg-transparent border-gray-200 dark:border-white/20 text-apple-gray dark:text-gray-400 hover:border-gray-400 dark:hover:border-white/50 hover:scale-105'
+                  : 'border-gray-200 dark:border-white/20 text-apple-gray dark:text-gray-400 hover:border-gray-400 dark:hover:border-white/50 hover:scale-105'
               }`}
             >
               {viewMode === 'time' ? t.archive.allYears : t.archive.allLocations}
@@ -188,10 +197,10 @@ const Archive: React.FC<ArchiveProps> = ({ items, onPhotoClick }) => {
               <button
                 key={item}
                 onClick={() => setSelectedFilter(item)}
-                className={`px-5 py-2 rounded-full border text-xs uppercase tracking-widest transition-all duration-300 ${
+                className={`px-5 py-2 rounded-full border text-xs uppercase tracking-widest transition-all duration-300 backdrop-blur-md bg-white/60 dark:bg-white/5 ${
                   selectedFilter === item
                      ? 'bg-apple-dark dark:bg-white text-white dark:text-black border-transparent scale-105'
-                : 'bg-white dark:bg-transparent border-gray-200 dark:border-white/20 text-apple-gray dark:text-gray-400 hover:border-gray-400 dark:hover:border-white/50 hover:scale-105'
+                : 'border-gray-200 dark:border-white/20 text-apple-gray dark:text-gray-400 hover:border-gray-400 dark:hover:border-white/50 hover:scale-105'
                 }`}
               >
                 {item}

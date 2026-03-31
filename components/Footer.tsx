@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../context';
 import { ArrowUp } from 'lucide-react';
+import { useHeroEntrance } from './animations';
 
 const Footer: React.FC = () => {
   const { t } = useApp();
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const { ref, isVisible } = useHeroEntrance(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,20 +23,22 @@ const Footer: React.FC = () => {
 
   return (
     <footer id="contact" className="bg-apple-bg dark:bg-black pb-40 md:pb-12 pt-24 text-apple-gray text-xs md:text-sm font-light transition-colors duration-500 border-t border-gray-200 dark:border-white/5 relative">
-      <div className="max-w-[1800px] mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div className="flex flex-col items-center md:items-start gap-2">
+      <div ref={ref} className={`anim-fade-up ${isVisible ? 'is-visible' : ''}`}>
+        <div className="max-w-[1800px] mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col items-center md:items-start gap-2" style={{ '--stagger-index': 0 } as React.CSSProperties}>
            <span className="text-apple-dark dark:text-white font-medium tracking-tight">Lumina Photography</span>
            <span className="opacity-50">{t.footer.designed}</span>
         </div>
         
-        <div className="flex gap-8">
+        <div className="flex gap-8" style={{ '--stagger-index': 1 } as React.CSSProperties}>
           <a href="#" className="hover:text-apple-dark dark:hover:text-white transition-colors">Instagram</a>
           <a href="#" className="hover:text-apple-dark dark:hover:text-white transition-colors">Twitter</a>
           <a href="mailto:contact@lumina.art" className="hover:text-apple-dark dark:hover:text-white transition-colors">Email</a>
         </div>
 
-        <div className="opacity-30">
+        <div className="opacity-30" style={{ '--stagger-index': 2 } as React.CSSProperties}>
           © {new Date().getFullYear()} {t.footer.rights}
+        </div>
         </div>
       </div>
 

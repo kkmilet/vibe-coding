@@ -155,6 +155,7 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
+    if (zoomLevel !== 1) return;
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > MIN_SWIPE_DISTANCE;
     const isRightSwipe = distance < -MIN_SWIPE_DISTANCE;
@@ -185,9 +186,6 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
 
   return (
     <div
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
       className={`fixed inset-0 z-[5000] flex items-center justify-center overflow-hidden h-[100dvh] transition-opacity duration-500 ease-fluid ${isVisible ? 'opacity-100' : 'opacity-0'}`}
     >
       
@@ -271,7 +269,12 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
         )}
 
         {/* --- LEFT: IMAGE CONTAINER --- */}
-        <div className="flex-1 h-[50%] md:h-full relative flex items-center justify-center p-4 md:p-12 lg:p-20 order-1">
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="flex-1 h-[50%] md:h-full relative flex items-center justify-center p-4 md:p-12 lg:p-20 order-1"
+        >
            <div className="relative w-full max-w-5xl max-h-full shadow-2xl rounded-md overflow-hidden bg-white dark:bg-[#1c1c1e]">
               <img
                 src={displayPhoto.url}

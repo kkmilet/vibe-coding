@@ -3,6 +3,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Photo } from '../types';
 import { useApp } from '../context';
 import { Calendar, MapPin, Filter } from 'lucide-react';
+import { useScrollReveal } from './animations';
 
 interface ArchiveProps {
   items: Photo[];
@@ -82,19 +83,7 @@ const Archive: React.FC<ArchiveProps> = ({ items, onPhotoClick }) => {
   const [selectedFilter, setSelectedFilter] = useState<string | number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true);
-      },
-      { threshold: 0.1 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.1, once: true });
 
   const years = useMemo(() => {
     const allYears = items.map(p => p.year).filter((y): y is number => y !== undefined);
@@ -127,7 +116,7 @@ const Archive: React.FC<ArchiveProps> = ({ items, onPhotoClick }) => {
   };
 
   return (
-    <section id="archive" ref={sectionRef} className="py-32 bg-apple-bg dark:bg-[#0a0a0a] transition-colors duration-700 relative z-20">
+    <section id="archive" ref={ref} className="py-32 bg-apple-bg dark:bg-[#0a0a0a] transition-colors duration-700 relative z-20">
       <div className="max-w-[1800px] mx-auto px-6 md:px-12">
         
         {/* Header Section */}

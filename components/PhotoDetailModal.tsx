@@ -21,6 +21,10 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
   const [isVisible, setIsVisible] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | 'none'>('none');
   const [isSliding, setIsSliding] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const lastTapRef = useRef<number>(0);
 
   const { t, theme } = useApp();
   const isMounted = useRef(true);
@@ -138,8 +142,54 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
   // Only return null if we have no photo to display at all (after exit animation)
   if (!displayPhoto) return null;
 
+  const MIN_SWIPE_DISTANCE = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > MIN_SWIPE_DISTANCE;
+    const isRightSwipe = distance < -MIN_SWIPE_DISTANCE;
+
+    if (isLeftSwipe && hasNext) {
+      setSlideDirection('left');
+      onNext?.();
+    }
+    if (isRightSwipe && hasPrev) {
+      setSlideDirection('right');
+      onPrev?.();
+    }
+
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      setZoomLevel(z => z === 1 ? 2 : 1);
+      lastTapRef.current = 0;
+    } else {
+      lastTapRef.current = now;
+    }
+  };
+
   return (
-    <div className={`fixed inset-0 z-[5000] flex items-center justify-center overflow-hidden h-[100dvh] transition-opacity duration-500 ease-fluid ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+    <div
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className={`fixed inset-0 z-[5000] flex items-center justify-center overflow-hidden h-[100dvh] transition-opacity duration-500 ease-fluid ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+    >
       
       {/* --- IMMERSIVE BACKGROUND --- */}
       <div className={`absolute inset-0 z-0 transition-colors duration-700 ${theme === 'dark' ? 'bg-black' : 'bg-apple-bg'}`} />
@@ -226,7 +276,13 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
               <img
                 src={displayPhoto.url}
                 alt={displayPhoto.title}
-                className="w-full h-full object-contain max-h-[80vh]"
+                className="w-full h-full object-contain max-h-[80vh] cursor-zoom-in"
+                onClick={handleDoubleClick}
+                style={{
+                  transform: zoomLevel === 2 ? 'scale(2)' : 'scale(1)',
+                  transformOrigin: 'center center',
+                  transition: 'transform 0.3s ease-out',
+                }}
               />
            </div>
         </div>

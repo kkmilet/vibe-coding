@@ -323,33 +323,71 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
              </h2>
           </div>
 
-          {/* Technical Grid */}
-          <div className=" grid grid-cols-2 gap-4 py-6 border-y border-gray-200/50 dark:border-white/10" >
-             <div className=" flex flex-col gap-1" >
-                <span className=" flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium" >
-                   <Aperture size={12} /> {t.modal.iso} / {t.modal.focal}
-                </span>
-                <span className=" text-sm font-medium text-apple-dark dark:text-white" >
-                   {displayPhoto.iso || 'ISO 200'} • {displayPhoto.focalLength || '35mm'}
-                </span>
-             </div>
-             <div className=" flex flex-col gap-1" >
-                <span className=" flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium" >
-                   <Calendar size={12} /> {t.modal.year}
-                </span>
-                <span className=" text-sm font-medium text-apple-dark dark:text-white" >
-                   {displayPhoto.year || '2024'}
-                </span>
-             </div>
-             <div className=" flex flex-col gap-1 col-span-2" >
-                <span className=" flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium" >
-                   <MapPin size={12} /> {t.modal.location}
-                </span>
-                <span className=" text-sm font-medium text-apple-dark dark:text-white" >
-                   {displayPhoto.location || 'Unknown Location'}
-                </span>
-             </div>
+          {/* Technical Grid - 3 columns */}
+          <div className="grid grid-cols-3 gap-4 py-6 border-y border-gray-200/50 dark:border-white/10">
+            <div className="flex flex-col gap-1">
+              <span className="flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium">
+                <Aperture size={12} /> ISO
+              </span>
+              <span className="text-sm font-medium text-apple-dark dark:text-white">
+                {displayPhoto.iso || 'ISO 200'}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium">
+                <svg size={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                Shutter
+              </span>
+              <span className="text-sm font-medium text-apple-dark dark:text-white">
+                {displayPhoto.shutterSpeed || '1/250s'}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium">
+                <svg size={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3v18M5.5 8.5l13 7M5.5 15.5l13-7"/></svg>
+                Aperture
+              </span>
+              <span className="text-sm font-medium text-apple-dark dark:text-white">
+                {displayPhoto.aperture || 'f/2.8'}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium">
+                <Calendar size={12} /> Year
+              </span>
+              <span className="text-sm font-medium text-apple-dark dark:text-white">
+                {displayPhoto.year || '2024'}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1 col-span-2">
+              <span className="flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium">
+                <MapPin size={12} /> Location
+              </span>
+              <span className="text-sm font-medium text-apple-dark dark:text-white">
+                {displayPhoto.location || 'Unknown Location'}
+              </span>
+            </div>
           </div>
+
+          {/* Camera Info Row */}
+          {(displayPhoto.cameraModel || displayPhoto.lens) && (
+            <div className="py-4 border-b border-gray-200/50 dark:border-white/10">
+              <div className="flex items-center gap-4 text-xs text-apple-gray dark:text-gray-500">
+                {displayPhoto.cameraModel && (
+                  <span className="flex items-center gap-1.5">
+                    <svg size={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M2 10h20"/></svg>
+                    {displayPhoto.cameraModel}
+                  </span>
+                )}
+                {displayPhoto.lens && (
+                  <span className="flex items-center gap-1.5">
+                    <svg size={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                    {displayPhoto.lens}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div className=" mt-auto pt-8 pb-12" >

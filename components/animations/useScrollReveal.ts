@@ -8,7 +8,7 @@ interface ScrollRevealOptions {
 
 export const useScrollReveal = (options: ScrollRevealOptions = {}) => {
   const { threshold = 0.1, rootMargin = '0px', once = false } = options;
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {

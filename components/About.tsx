@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useApp } from '../context';
+import { useScrollReveal } from './animations';
 
 const useCountUp = (end: number, duration: number = 2000, start: number = 0, isVisible: boolean) => {
   const [count, setCount] = useState(start);
@@ -65,32 +66,33 @@ const StatCounter = ({ value, label }: { value: string; label: string }) => {
 const About: React.FC = () => {
   const { t } = useApp();
   const [loaded, setLoaded] = useState(false);
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.1, once: true });
 
   return (
-    <section id="about" className="py-40 bg-apple-bg dark:bg-black transition-colors duration-500">
+    <section id="about" ref={ref} className="py-40 bg-apple-bg dark:bg-black transition-colors duration-500">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
 
           {/* Text Content */}
-          <div className="order-2 lg:order-1">
-            <p className="text-blue-600 dark:text-blue-500 text-xs font-bold uppercase tracking-[0.2em] mb-6">
+          <div className={`order-2 lg:order-1 anim-fade-up ${isVisible ? 'is-visible' : ''}`}>
+            <p className="text-blue-600 dark:text-blue-500 text-xs font-bold uppercase tracking-[0.2em] mb-6" style={{ '--stagger-index': 0 } as React.CSSProperties}>
               {t.about.philosophy}
             </p>
-            <h2 className="text-5xl md:text-7xl font-bold text-apple-dark dark:text-white tracking-tight mb-12 leading-[0.9] transition-colors duration-500">
+            <h2 className="text-5xl md:text-7xl font-bold text-apple-dark dark:text-white tracking-tight mb-12 leading-[0.9] transition-colors duration-500" style={{ '--stagger-index': 1 } as React.CSSProperties}>
               {t.about.title} <br />
               <span className="text-gray-300 dark:text-white/20">{t.about.subtitle}</span>
             </h2>
 
-            <div className="space-y-8 text-xl md:text-2xl text-apple-gray dark:text-gray-400 font-light leading-relaxed transition-colors duration-500">
+            <div className="space-y-8 text-xl md:text-2xl text-apple-gray dark:text-gray-400 font-light leading-relaxed transition-colors duration-500" style={{ '--stagger-index': 2 } as React.CSSProperties}>
               <p>
                 {t.about.p1}
               </p>
-              <p className="text-gray-500 dark:text-gray-500">
+              <p className="text-gray-500 dark:text-gray-500" style={{ '--stagger-index': 3 } as React.CSSProperties}>
                 {t.about.p2}
               </p>
             </div>
 
-            <div className="mt-16 flex gap-16">
+            <div className="mt-16 flex gap-16" style={{ '--stagger-index': 4 } as React.CSSProperties}>
               <StatCounter value={t.about.years} label={t.about.yearsLabel} />
               <StatCounter value={t.about.exhibitions} label={t.about.exhibitionsLabel} />
             </div>

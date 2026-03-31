@@ -83,7 +83,7 @@ const GridImage = ({ photo, onClick, priority = false }: { photo: Photo; onClick
     const rect = imgRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ x: y * -3, y: x * 3 });
+    setTilt({ x: y * -6, y: x * 6 });
   };
 
   const handleMouseEnter = () => setIsHovering(true);
@@ -128,7 +128,7 @@ const GridImage = ({ photo, onClick, priority = false }: { photo: Photo; onClick
             alt={photo.title}
             onLoad={() => setIsLoaded(true)}
             decoding={priority ? "sync" : "async"}
-            className={`relative z-10 w-full h-auto block transition-all duration-[1s] ease-out group-hover:scale-[1.03] group-hover:saturate-[1.15] ${
+            className={`relative z-10 w-full h-auto block transition-all duration-500 ease-out group-hover:scale-[1.03] group-hover:saturate-[1.15] ${
               showHighRes ? 'opacity-100' : 'opacity-0'
             }`}
             style={{ aspectRatio: `${photo.width} / ${photo.height}` }}

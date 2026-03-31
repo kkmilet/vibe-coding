@@ -18,6 +18,7 @@ interface Props {
 const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, hasPrev, hasNext, currentIndex, totalCount }) => {
   // Local state to manage display data during exit animations
   const [displayPhoto, setDisplayPhoto] = useState<Photo | null>(photo);
+  const [exitPhoto, setExitPhoto] = useState<Photo | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | 'none'>('none');
   const [isSliding, setIsSliding] = useState(false);
@@ -25,6 +26,7 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const lastTapRef = useRef<number>(0);
+  const [bgUrl, setBgUrl] = useState('');
 
   const { t, theme } = useApp();
   const isMounted = useRef(true);
@@ -40,15 +42,20 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
     if (photo) {
       // If displayPhoto exists and new photo is different, trigger slide animation
       if (displayPhoto && photo.id !== displayPhoto.id) {
+        // Start transition: current becomes exit photo, new becomes display photo
+        setExitPhoto(displayPhoto);
+        setDisplayPhoto(photo);
         setIsSliding(true);
+        setBgUrl(getBgUrl(photo));
+
+        // After slide animation completes, clear exit photo
         setTimeout(() => {
-          setDisplayPhoto(photo);
-          requestAnimationFrame(() => {
-            setIsSliding(false);
-          });
-        }, 200);
+          setExitPhoto(null);
+          setIsSliding(false);
+        }, 280);
       } else {
         setDisplayPhoto(photo);
+        setBgUrl(getBgUrl(photo));
         requestAnimationFrame(() => setIsVisible(true));
       }
     } else {
@@ -56,11 +63,21 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
       const timer = setTimeout(() => {
         if (isMounted.current) {
           setDisplayPhoto(null);
+          setExitPhoto(null);
         }
       }, 500); // Match the transition duration (500ms)
       return () => clearTimeout(timer);
     }
   }, [photo]);
+
+  // Helper to get background URL
+  const getBgUrl = (p: Photo | null) => {
+    if (!p) return '';
+    if (p.url.includes("picsum.photos")) {
+      return p.url.replace(/\/\d+\/\d+$/, '/100/100?blur=10');
+    }
+    return p.url;
+  };
 
   // Separate effect for overflow to prevent flicker when switching photos (A -> B)
   // because isVisible remains true, avoiding the cleanup/setup cycle of 'unset'/'hidden'
@@ -99,13 +116,6 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
     onNext?.();
   };
 
-  const bgUrl = useMemo(() => {
-    if (!displayPhoto) return '';
-    if (displayPhoto.url.includes("picsum.photos")) {
-        return displayPhoto.url.replace(/\/\d+\/\d+$/, '/100/100?blur=10');
-    }
-    return displayPhoto.url;
-  }, [displayPhoto]);
 
   const handleDownload = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -186,44 +196,51 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
 
   return (
     <div
-      className={`fixed inset-0 z-[5000] flex items-center justify-center overflow-hidden h-[100dvh] transition-opacity duration-500 ease-fluid ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className="fixed inset-0 z-[5000] flex items-center justify-center overflow-hidden h-[100dvh]"
+      style={{
+        animation: isVisible ? 'modalBackdropIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards' : 'none',
+        opacity: 0,
+      }}
     >
-      
+
       {/* --- IMMERSIVE BACKGROUND --- */}
-      <div className={`absolute inset-0 z-0 transition-colors duration-700 ${theme === 'dark' ? 'bg-black' : 'bg-apple-bg'}`} />
+      <div
+        className={`absolute inset-0 z-0 ${theme === 'dark' ? 'bg-black' : 'bg-apple-bg'}`}
+        style={{ animation: isVisible ? 'backdropFadeIn 0.6s ease-out forwards' : 'none' }}
+      />
 
       {/* Optimized Blurred Background */}
       <div className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden">
-        <div 
-          className={`absolute inset-0 bg-cover bg-center transition-all duration-[1.5s] ease-out blur-[100px] opacity-40 dark:opacity-30 transform ${isVisible ? 'scale-110' : 'scale-150'}`}
-          style={{ 
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
             backgroundImage: `url(${bgUrl})`,
+            filter: 'blur(100px)',
+            opacity: 0.4,
+            transform: 'scale(1.2)',
+            animation: isVisible
+              ? 'bgExpandIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+              : 'none',
           }}
         />
-        <div className={`absolute inset-0 transition-all duration-500 ${
-          theme === 'dark' 
-            ? 'bg-black/40' 
-            : 'bg-white/40'
-        }`} />
+        <div
+          className={`absolute inset-0 ${theme === 'dark' ? 'bg-black/40' : 'bg-white/40'}`}
+          style={{ animation: isVisible ? 'overlayFadeIn 0.5s ease-out 0.2s forwards' : 'none', opacity: 0 }}
+        />
       </div>
 
       {/* --- MAIN CONTENT --- */}
       <div
-        className={`relative z-10 w-full h-full flex flex-col md:flex-row transition-all duration-500 ease-fluid ${
-          isVisible
-            ? isSliding
-              ? slideDirection === 'left'
-                ? 'translate-x-0 opacity-100'
-                : 'translate-x-0 opacity-100'
-              : 'translate-y-0 scale-100 opacity-100'
-            : 'translate-y-10 scale-95 opacity-0'
-        }`}
+        className="relative z-10 w-full h-full flex flex-col md:flex-row"
         style={{
           animation: isSliding
             ? slideDirection === 'left'
-              ? 'slideInRight 0.3s ease-out forwards'
-              : 'slideInLeft 0.3s ease-out forwards'
-            : 'none',
+              ? 'slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+              : 'slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+            : isVisible
+              ? 'contentRevealIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards'
+              : 'none',
+          opacity: isSliding || isVisible ? 1 : 0,
         }}
       >
 
@@ -242,13 +259,13 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
         {hasPrev && (
           <button
             onClick={handlePrevClick}
-            className={`absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-[60] p-4 md:p-5 rounded-full transition-all duration-500 ease-fluid group ${
+            className={`absolute left-4 top-1/2 -translate-y-1/2 z-[60] p-3 rounded-full transition-all duration-500 ease-fluid group ${
               theme === 'dark' ? 'bg-white/10 hover:bg-white/20' : 'bg-black/5 hover:bg-black/10'
             }`}
             aria-label="Previous photo"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={`${theme === 'dark' ? 'text-white' : 'text-black'} transition-transform duration-500 group-hover:-translate-x-1`}>
-              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className={`${theme === 'dark' ? 'text-white' : 'text-black'} transition-transform duration-500 group-hover:-translate-x-1`}>
+              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         )}
@@ -257,13 +274,13 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
         {hasNext && (
           <button
             onClick={handleNextClick}
-            className={`absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-[60] p-4 md:p-5 rounded-full transition-all duration-500 ease-fluid group ${
+            className={`absolute right-4 top-1/2 -translate-y-1/2 z-[60] p-3 rounded-full transition-all duration-500 ease-fluid group ${
               theme === 'dark' ? 'bg-white/10 hover:bg-white/20' : 'bg-black/5 hover:bg-black/10'
             }`}
             aria-label="Next photo"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={`${theme === 'dark' ? 'text-white' : 'text-black'} transition-transform duration-500 group-hover:translate-x-1`}>
-              <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className={`${theme === 'dark' ? 'text-white' : 'text-black'} transition-transform duration-500 group-hover:translate-x-1`}>
+              <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         )}
@@ -273,44 +290,233 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="flex-1 h-[50%] md:h-full relative flex items-center justify-center p-4 md:p-12 lg:p-20 order-1"
+          className="flex-1 h-[50%] md:h-full relative flex items-center justify-center p-6 md:p-16 lg:p-24 order-1"
         >
-           <div className="relative w-full max-w-5xl max-h-full shadow-2xl rounded-md overflow-hidden bg-white dark:bg-[#1c1c1e]">
-              <img
-                src={displayPhoto.url}
-                alt={displayPhoto.title}
-                className="w-full h-full object-contain max-h-[80vh] cursor-zoom-in"
-                onClick={handleDoubleClick}
+          {/* Dynamic ambient glow - simulates light cast by the photo */}
+          <div
+            className="absolute inset-0 pointer-events-none overflow-hidden"
+            style={{
+              background: `radial-gradient(ellipse 80% 70% at 50% 50%, ${
+                theme === 'dark'
+                  ? 'rgba(255,255,255,0.06) 0%, transparent 60%'
+                  : 'rgba(0,0,0,0.04) 0%, transparent 60%'
+              }, transparent 70%)`,
+              filter: 'blur(60px)',
+              transition: 'background 0.7s ease',
+            }}
+          />
+
+          {/* Photo Mount (Passe-partout) - the white border like a real mounted print */}
+          <div
+            className="relative flex items-center justify-center"
+            style={{
+              // Mount border thickness - proportional to viewport
+              padding: 'clamp(12px, 3vw, 40px)',
+              background: theme === 'dark' ? '#0a0a0a' : '#fafafa',
+              borderRadius: '4px',
+              maxHeight: '80vh',
+              maxWidth: 'min(85vw, 900px)',
+              animation: isVisible && !isSliding ? 'mountRevealIn 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.15s forwards' : 'none',
+              opacity: 0,
+            }}
+          >
+            {/* Mount inner shadow - creates depth between mount and photo */}
+            <div
+              className="absolute inset-0 rounded"
+              style={{
+                boxShadow: theme === 'dark'
+                  ? 'inset 0 2px 8px rgba(0,0,0,0.4), inset 0 -1px 2px rgba(255,255,255,0.03)'
+                  : 'inset 0 2px 8px rgba(0,0,0,0.08), inset 0 -1px 2px rgba(255,255,255,0.8)',
+              }}
+            />
+
+            {/* The Photo Container - with multi-layer shadow for floating effect */}
+            <div
+              className="relative rounded-sm overflow-hidden"
+              style={{
+                aspectRatio: displayPhoto.width && displayPhoto.height
+                  ? `${displayPhoto.width} / ${displayPhoto.height}`
+                  : 'auto',
+                maxHeight: 'calc(80vh - clamp(24px, 6vw, 80px))',
+                width: 'auto',
+                height: 'auto',
+                // Sophisticated multi-layer shadow
+                boxShadow: theme === 'dark'
+                  ? `
+                    0 2px 4px rgba(0,0,0,0.1),
+                    0 8px 16px rgba(0,0,0,0.15),
+                    0 24px 48px rgba(0,0,0,0.25),
+                    0 48px 96px rgba(0,0,0,0.35),
+                    0 0 0 1px rgba(255,255,255,0.03),
+                    inset 0 0 0 1px rgba(255,255,255,0.02)
+                  `
+                  : `
+                    0 2px 4px rgba(0,0,0,0.04),
+                    0 8px 16px rgba(0,0,0,0.08),
+                    0 24px 48px rgba(0,0,0,0.12),
+                    0 48px 96px rgba(0,0,0,0.16),
+                    0 0 0 1px rgba(0,0,0,0.06),
+                    inset 0 0 0 1px rgba(255,255,255,0.9)
+                  `,
+              }}
+            >
+              {/* Exit photo layer (animating out) - OLD photo slides OUT */}
+              {exitPhoto && (
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    zIndex: 20,
+                    animation: slideDirection === 'left'
+                      ? 'slideExitLeft 0.18s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+                      : 'slideExitRight 0.18s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                  }}
+                >
+                  <img
+                    src={exitPhoto.url}
+                    alt={exitPhoto.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              {/* Enter photo layer (animating in) - NEW photo fades/slides IN */}
+              <div
+                className="relative"
                 style={{
-                  transform: zoomLevel === 2 ? 'scale(2)' : 'scale(1)',
-                  transformOrigin: 'center center',
-                  transition: 'transform 0.3s ease-out',
+                  zIndex: 10,
+                  animation: isSliding
+                    ? slideDirection === 'left'
+                      ? 'slideEnterRight 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+                      : 'slideEnterLeft 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+                    : 'none',
+                }}
+              >
+                <img
+                  src={displayPhoto.url}
+                  alt={displayPhoto.title}
+                  className="block w-full h-auto object-cover cursor-zoom-in"
+                  onClick={handleDoubleClick}
+                  style={{
+                    display: 'block',
+                    transform: zoomLevel === 2 ? 'scale(2)' : isSliding ? 'scale(1.02)' : 'scale(1)',
+                    transformOrigin: 'center center',
+                    transition: 'transform 0.3s ease-out',
+                    maxHeight: 'calc(80vh - clamp(24px, 6vw, 80px))',
+                    width: 'auto',
+                    height: 'auto',
+                  }}
+                />
+
+                {/* Glass Reflection Layer - top portion subtle white gradient */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `
+                      linear-gradient(
+                        180deg,
+                        rgba(255,255,255,${theme === 'dark' ? '0.04' : '0.08'}) 0%,
+                        rgba(255,255,255,0) 15%,
+                        transparent 30%
+                      ),
+                      linear-gradient(
+                        180deg,
+                        rgba(255,255,255,0) 70%,
+                        rgba(255,255,255,${theme === 'dark' ? '0.02' : '0.04'}) 100%
+                      )
+                    `,
+                    borderRadius: '2px',
+                  }}
+                />
+
+                {/* Subtle Edge Highlight - light catching the edge of the photo */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    boxShadow: theme === 'dark'
+                      ? 'inset 0 0 0 1px rgba(255,255,255,0.05)'
+                      : 'inset 0 0 0 1px rgba(255,255,255,0.8)',
+                    borderRadius: '2px',
+                  }}
+                />
+              </div>
+
+              {/* Bottom Reflection - subtle mirror of the photo below */}
+              <div
+                className="absolute left-0 right-0 -bottom-2 h-6 pointer-events-none"
+                style={{
+                  background: `linear-gradient(to bottom, ${
+                    theme === 'dark' ? 'rgba(255,255,255,0.015)' : 'rgba(0,0,0,0.02)'
+                  } 0%, transparent 100%)`,
+                  maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 100%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 100%)',
+                  transform: 'scaleY(-1) translateY(100%)',
+                  filter: 'blur(3px)',
+                  opacity: 0.5,
                 }}
               />
-           </div>
+            </div>
+
+            {/* Mount Label - subtle info like on museum prints */}
+            <div
+              className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[9px] tracking-[0.2em] uppercase font-medium"
+              style={{
+                color: theme === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+              }}
+            >
+              {displayPhoto.location || 'Lumina Pro Vision'}
+            </div>
+          </div>
+
+          {/* Subtle Bokeh/Glow Orbs in background for depth */}
+          <div
+            className="absolute w-64 h-64 rounded-full pointer-events-none opacity-30 dark:opacity-20"
+            style={{
+              background: theme === 'dark'
+                ? 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(0,0,0,0.05) 0%, transparent 70%)',
+              top: '20%',
+              left: '15%',
+              filter: 'blur(80px)',
+              animation: 'breathe 8s ease-in-out infinite',
+            }}
+          />
+          <div
+            className="absolute w-96 h-96 rounded-full pointer-events-none opacity-20 dark:opacity-10"
+            style={{
+              background: theme === 'dark'
+                ? 'radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%)'
+                : 'radial-gradient(circle, rgba(0,0,0,0.03) 0%, transparent 70%)',
+              bottom: '10%',
+              right: '10%',
+              filter: 'blur(100px)',
+              animation: 'breathe 10s ease-in-out infinite reverse',
+            }}
+          />
         </div>
 
         {/* --- RIGHT: DETAILS PANEL --- */}
-        <div className=" w-full md:w-[400px] lg:w-[450px] h-[50%] md:h-full overflow-y-auto order-2 bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-xl border-l border-white/20 dark:border-white/5 p-8 md:p-12 flex flex-col gap-8 no-scrollbar" >
+        <div
+          className="w-full md:w-[400px] lg:w-[450px] h-[50%] md:h-full overflow-y-auto order-2 bg-white/80 dark:bg-[#1c1c1e]/80 backdrop-blur-xl border-l border-white/20 dark:border-white/5 p-8 md:p-12 flex flex-col gap-8 no-scrollbar"
+          style={{
+            animation: isVisible && !isSliding ? 'panelSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.25s forwards' : 'none',
+            opacity: 0,
+            transform: isVisible && !isSliding ? 'translateX(30px)' : 'none',
+          }}
+        >
 
           {/* Header Info */}
           <div className=" space-y-2 mt-8 md:mt-20" >
             {/* Photo Position Indicator */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2 text-[10px] text-apple-gray dark:text-gray-500 font-medium tracking-widest uppercase">
-                <span className="w-4 h-px bg-apple-gray/30 dark:bg-gray-500/30"></span>
+            <div className=" flex items-center justify-between mb-4" >
+              <div className=" flex items-center gap-2 text-[10px] text-apple-gray dark:text-gray-500 font-medium tracking-widest uppercase" >
+                <span className=" w-4 h-px bg-apple-gray/30 dark:bg-gray-500/30" ></span>
                 Frame
               </div>
               {(hasPrev !== undefined || hasNext !== undefined) && (
-                <div className="flex items-center gap-2">
-                  <span className="text-3xl md:text-4xl font-bold text-apple-dark dark:text-white font-mono tabular-nums">
-                    {currentIndex !== undefined && currentIndex >= 0 ? currentIndex + 1 : ''}
-                  </span>
-                  <span className="text-lg text-apple-gray dark:text-gray-500 font-medium">/</span>
-                  <span className="text-lg text-apple-gray dark:text-gray-500 font-medium tabular-nums">
-                    {totalCount}
-                  </span>
-                </div>
+                <span className=" text-[10px] text-apple-gray dark:text-gray-500 font-mono" >
+                  {currentIndex !== undefined && currentIndex >= 0 ? currentIndex + 1 : ''} / {totalCount}
+                </span>
               )}
             </div>
              <div className=" flex items-center gap-2" >
@@ -323,71 +529,33 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
              </h2>
           </div>
 
-          {/* Technical Grid - 3 columns */}
-          <div className="grid grid-cols-3 gap-4 py-6 border-y border-gray-200/50 dark:border-white/10">
-            <div className="flex flex-col gap-1">
-              <span className="flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium">
-                <Aperture size={12} /> ISO
-              </span>
-              <span className="text-sm font-medium text-apple-dark dark:text-white">
-                {displayPhoto.iso || 'ISO 200'}
-              </span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium">
-                <svg size={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                Shutter
-              </span>
-              <span className="text-sm font-medium text-apple-dark dark:text-white">
-                {displayPhoto.shutterSpeed || '1/250s'}
-              </span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium">
-                <svg size={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3v18M5.5 8.5l13 7M5.5 15.5l13-7"/></svg>
-                Aperture
-              </span>
-              <span className="text-sm font-medium text-apple-dark dark:text-white">
-                {displayPhoto.aperture || 'f/2.8'}
-              </span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium">
-                <Calendar size={12} /> Year
-              </span>
-              <span className="text-sm font-medium text-apple-dark dark:text-white">
-                {displayPhoto.year || '2024'}
-              </span>
-            </div>
-            <div className="flex flex-col gap-1 col-span-2">
-              <span className="flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium">
-                <MapPin size={12} /> Location
-              </span>
-              <span className="text-sm font-medium text-apple-dark dark:text-white">
-                {displayPhoto.location || 'Unknown Location'}
-              </span>
-            </div>
+          {/* Technical Grid */}
+          <div className=" grid grid-cols-2 gap-4 py-6 border-y border-gray-200/50 dark:border-white/10" >
+             <div className=" flex flex-col gap-1" >
+                <span className=" flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium" >
+                   <Aperture size={12} /> {t.modal.iso} / {t.modal.focal}
+                </span>
+                <span className=" text-sm font-medium text-apple-dark dark:text-white" >
+                   {displayPhoto.iso || 'ISO 200'} • {displayPhoto.focalLength || '35mm'}
+                </span>
+             </div>
+             <div className=" flex flex-col gap-1" >
+                <span className=" flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium" >
+                   <Calendar size={12} /> {t.modal.year}
+                </span>
+                <span className=" text-sm font-medium text-apple-dark dark:text-white" >
+                   {displayPhoto.year || '2024'}
+                </span>
+             </div>
+             <div className=" flex flex-col gap-1 col-span-2" >
+                <span className=" flex items-center gap-2 text-xs text-apple-gray dark:text-gray-500 uppercase tracking-wider font-medium" >
+                   <MapPin size={12} /> {t.modal.location}
+                </span>
+                <span className=" text-sm font-medium text-apple-dark dark:text-white" >
+                   {displayPhoto.location || 'Unknown Location'}
+                </span>
+             </div>
           </div>
-
-          {/* Camera Info Row */}
-          {(displayPhoto.cameraModel || displayPhoto.lens) && (
-            <div className="py-4 border-b border-gray-200/50 dark:border-white/10">
-              <div className="flex items-center gap-4 text-xs text-apple-gray dark:text-gray-500">
-                {displayPhoto.cameraModel && (
-                  <span className="flex items-center gap-1.5">
-                    <svg size={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M2 10h20"/></svg>
-                    {displayPhoto.cameraModel}
-                  </span>
-                )}
-                {displayPhoto.lens && (
-                  <span className="flex items-center gap-1.5">
-                    <svg size={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                    {displayPhoto.lens}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Actions */}
           <div className=" mt-auto pt-8 pb-12" >
@@ -401,24 +569,6 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
              <p className=" text-center text-[10px] text-gray-400 mt-4 max-w-[80%] mx-auto leading-relaxed" >
                {t.modal.prompt}
              </p>
-             {/* Keyboard Shortcuts */}
-             <div className="mt-6 pt-6 border-t border-gray-200/50 dark:border-white/10">
-               <div className="flex items-center justify-center gap-6 text-[10px] text-apple-gray dark:text-gray-500">
-                 <span className="flex items-center gap-1.5">
-                   <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-white/10 text-[9px] font-mono">←</kbd>
-                   <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-white/10 text-[9px] font-mono">→</kbd>
-                   <span>Navigate</span>
-                 </span>
-                 <span className="flex items-center gap-1.5">
-                   <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-white/10 text-[9px] font-mono">Esc</kbd>
-                   <span>Close</span>
-                 </span>
-                 <span className="flex items-center gap-1.5">
-                   <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-white/10 text-[9px] font-mono">Space</kbd>
-                   <span>Fullscreen</span>
-                 </span>
-               </div>
-             </div>
           </div>
 
         </div>

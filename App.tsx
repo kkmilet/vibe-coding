@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './styles/scroll-animations.css';
 import './styles/noise-texture.css';
 import NavBar from './components/NavBar';
@@ -23,15 +23,33 @@ const Content: React.FC = () => {
   const seriesItems = PORTFOLIO_ITEMS.slice(5);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const el = document.documentElement;
-      const scrollTop = el.scrollTop || document.body.scrollTop;
-      const scrollHeight = el.scrollHeight - el.clientHeight;
-      setScrollProgress(scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const el = document.documentElement;
+          const scrollTop = el.scrollTop || document.body.scrollTop;
+          const scrollHeight = el.scrollHeight - el.clientHeight;
+          setScrollProgress(scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Prefetch adjacent photos when a photo is selected
+  useEffect(() => {
+    if (!selectedPhoto) return;
+    const idx = PORTFOLIO_ITEMS.findIndex(p => p.id === selectedPhoto.id);
+    const prefetchImg = new Image();
+    const next = PORTFOLIO_ITEMS[idx + 1];
+    const prev = PORTFOLIO_ITEMS[idx - 1];
+    if (next) prefetchImg.src = next.url;
+    if (prev) prefetchImg.src = prev.url;
+  }, [selectedPhoto]);
 
   const handlePhotoClick = useCallback((photo: Photo) => {
     setSelectedPhoto(photo);

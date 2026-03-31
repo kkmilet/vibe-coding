@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const useHeroEntrance = (delayMs: number = 0) => {
   const ref = useRef<HTMLDivElement>(null);

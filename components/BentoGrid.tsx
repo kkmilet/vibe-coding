@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Photo } from '../types';
 import { useApp } from '../context';
+import { useScrollReveal } from './animations';
 
 interface BentoGridProps {
   id: string;
@@ -162,24 +163,7 @@ const GridImage = ({ photo, onClick, priority = false }: { photo: Photo; onClick
 
 const BentoGrid: React.FC<BentoGridProps> = ({ id, title, items, onPhotoClick }) => {
   const windowWidth = useWindowWidth();
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.05 } // Trigger slightly earlier for section reveal
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-    return () => observer.disconnect();
-  }, []);
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.05, once: true });
 
   const columnsCount = useMemo(() => {
     if (windowWidth < 768) return 1;
@@ -196,9 +180,8 @@ const BentoGrid: React.FC<BentoGridProps> = ({ id, title, items, onPhotoClick })
   }, [columnsCount, items]);
 
   return (
-    <section 
-      id={id} 
-      ref={sectionRef} 
+    <section
+      id={id}
       className="pb-20 pt-20 bg-apple-bg dark:bg-black relative z-20 transition-colors duration-700"
     >
       <div className="max-w-[1800px] mx-auto px-4 md:px-8">

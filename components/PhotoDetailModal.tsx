@@ -242,13 +242,13 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
         {hasPrev && (
           <button
             onClick={handlePrevClick}
-            className={`absolute left-4 top-1/2 -translate-y-1/2 z-[60] p-3 rounded-full transition-all duration-500 ease-fluid group ${
+            className={`absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-[60] p-4 md:p-5 rounded-full transition-all duration-500 ease-fluid group ${
               theme === 'dark' ? 'bg-white/10 hover:bg-white/20' : 'bg-black/5 hover:bg-black/10'
             }`}
             aria-label="Previous photo"
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className={`${theme === 'dark' ? 'text-white' : 'text-black'} transition-transform duration-500 group-hover:-translate-x-1`}>
-              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={`${theme === 'dark' ? 'text-white' : 'text-black'} transition-transform duration-500 group-hover:-translate-x-1`}>
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         )}
@@ -257,13 +257,13 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
         {hasNext && (
           <button
             onClick={handleNextClick}
-            className={`absolute right-4 top-1/2 -translate-y-1/2 z-[60] p-3 rounded-full transition-all duration-500 ease-fluid group ${
+            className={`absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-[60] p-4 md:p-5 rounded-full transition-all duration-500 ease-fluid group ${
               theme === 'dark' ? 'bg-white/10 hover:bg-white/20' : 'bg-black/5 hover:bg-black/10'
             }`}
             aria-label="Next photo"
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className={`${theme === 'dark' ? 'text-white' : 'text-black'} transition-transform duration-500 group-hover:translate-x-1`}>
-              <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={`${theme === 'dark' ? 'text-white' : 'text-black'} transition-transform duration-500 group-hover:translate-x-1`}>
+              <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         )}
@@ -296,15 +296,21 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
           {/* Header Info */}
           <div className=" space-y-2 mt-8 md:mt-20" >
             {/* Photo Position Indicator */}
-            <div className=" flex items-center justify-between mb-4" >
-              <div className=" flex items-center gap-2 text-[10px] text-apple-gray dark:text-gray-500 font-medium tracking-widest uppercase" >
-                <span className=" w-4 h-px bg-apple-gray/30 dark:bg-gray-500/30" ></span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 text-[10px] text-apple-gray dark:text-gray-500 font-medium tracking-widest uppercase">
+                <span className="w-4 h-px bg-apple-gray/30 dark:bg-gray-500/30"></span>
                 Frame
               </div>
               {(hasPrev !== undefined || hasNext !== undefined) && (
-                <span className=" text-[10px] text-apple-gray dark:text-gray-500 font-mono" >
-                  {currentIndex !== undefined && currentIndex >= 0 ? currentIndex + 1 : ''} / {totalCount}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-3xl md:text-4xl font-bold text-apple-dark dark:text-white font-mono tabular-nums">
+                    {currentIndex !== undefined && currentIndex >= 0 ? currentIndex + 1 : ''}
+                  </span>
+                  <span className="text-lg text-apple-gray dark:text-gray-500 font-medium">/</span>
+                  <span className="text-lg text-apple-gray dark:text-gray-500 font-medium tabular-nums">
+                    {totalCount}
+                  </span>
+                </div>
               )}
             </div>
              <div className=" flex items-center gap-2" >
@@ -357,6 +363,24 @@ const PhotoDetailModal: React.FC<Props> = ({ photo, onClose, onPrev, onNext, has
              <p className=" text-center text-[10px] text-gray-400 mt-4 max-w-[80%] mx-auto leading-relaxed" >
                {t.modal.prompt}
              </p>
+             {/* Keyboard Shortcuts */}
+             <div className="mt-6 pt-6 border-t border-gray-200/50 dark:border-white/10">
+               <div className="flex items-center justify-center gap-6 text-[10px] text-apple-gray dark:text-gray-500">
+                 <span className="flex items-center gap-1.5">
+                   <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-white/10 text-[9px] font-mono">←</kbd>
+                   <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-white/10 text-[9px] font-mono">→</kbd>
+                   <span>Navigate</span>
+                 </span>
+                 <span className="flex items-center gap-1.5">
+                   <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-white/10 text-[9px] font-mono">Esc</kbd>
+                   <span>Close</span>
+                 </span>
+                 <span className="flex items-center gap-1.5">
+                   <kbd className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-white/10 text-[9px] font-mono">Space</kbd>
+                   <span>Fullscreen</span>
+                 </span>
+               </div>
+             </div>
           </div>
 
         </div>

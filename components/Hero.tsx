@@ -18,17 +18,29 @@ const Hero: React.FC = () => {
 
   const { thumbUrl, fullUrl } = useMemo(() => {
     if (!heroPhoto) return { thumbUrl: null, fullUrl: null };
-    
+
     let base = heroPhoto.url;
     if (base.includes("picsum.photos")) {
          base = base.replace(/\/\d+\/\d+$/, '');
          return {
-            thumbUrl: `${base}/200/120?blur=5`, 
-            fullUrl: `${base}/1600/900` 
+            thumbUrl: `${base}/200/120?blur=5`,
+            fullUrl: `${base}/1600/900`
          };
     }
     return { thumbUrl: base, fullUrl: base };
   }, [heroPhoto]);
+
+  const generateHeroSrcSet = (base: string) => {
+    if (!base.includes("picsum.photos")) return '';
+    const sizes = [800, 1600, 2400];
+    return sizes
+      .map(w => {
+        const h = Math.round(w * 0.5625); // 16:9 aspect
+        const resizedUrl = base.replace(/\/\d+\/\d+$/, `/${w}/${h}`);
+        return `${resizedUrl} ${w}w`;
+      })
+      .join(', ');
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -80,13 +92,15 @@ const Hero: React.FC = () => {
           <img
             ref={parallaxRef}
             src={fullUrl}
+            srcSet={generateHeroSrcSet(fullUrl || thumbUrl || '')}
+            sizes="100vw"
             alt={heroPhoto?.title || "Hero Background"}
             onLoad={() => setHighResLoaded(true)}
-            loading="eager" 
+            loading="eager"
             fetchPriority="high"
             className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ease-out-expo will-change-transform ${
               highResLoaded ? 'opacity-100' : 'opacity-0'
-            }`} 
+            }`}
             style={{ transform: 'scale(1.1)' }}
           />
         )}

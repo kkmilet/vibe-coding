@@ -20,11 +20,22 @@ const ArchiveImage = ({ photo, onClick, viewMode }: { photo: Photo; onClick: () 
 
   const getSquareUrl = (url: string) => {
     if (url.includes("picsum.photos")) {
-        return url.replace(/\/\d+\/\d+$/, '/400/400'); 
+        return url.replace(/\/\d+\/\d+$/, '/400/400');
     }
     return url;
   };
   const squareUrl = getSquareUrl(photo.url);
+
+  const generateArchiveSrcSet = (url: string) => {
+    if (!url.includes("picsum.photos")) return '';
+    const sizes = [200, 400, 600];
+    return sizes
+      .map(w => {
+        const resizedUrl = url.replace(/\/\d+\/\d+$/, `/${w}/${w}`);
+        return `${resizedUrl} ${w}w`;
+      })
+      .join(', ');
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -54,9 +65,11 @@ const ArchiveImage = ({ photo, onClick, viewMode }: { photo: Photo; onClick: () 
       <div className={`absolute inset-0 bg-gray-200 dark:bg-white/5 transition-opacity duration-500 ${isLoaded ? 'opacity-0' : 'opacity-100'}`} />
       
       {shouldLoad && (
-        <img 
-            src={squareUrl} 
-            alt={photo.title} 
+        <img
+            src={squareUrl}
+            srcSet={generateArchiveSrcSet(photo.url)}
+            sizes="200px"
+            alt={photo.title}
             onLoad={() => setIsLoaded(true)}
             className={`w-full h-full object-cover transition-all duration-700 ease-fluid group-hover:scale-110 dark:opacity-90 dark:group-hover:opacity-100 ${
                 isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'

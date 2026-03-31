@@ -19,6 +19,18 @@ const getOptimizedUrl = (url: string, targetWidth: number, originalWidth: number
   return url;
 };
 
+const generateSrcSet = (url: string, originalWidth: number, originalHeight: number) => {
+  if (!url.includes("picsum.photos")) return '';
+  const sizes = [400, 800, 1600];
+  return sizes
+    .map(w => {
+      const h = Math.round(w * (originalHeight / originalWidth));
+      const resizedUrl = url.replace(/\/\d+\/\d+$/, `/${w}/${h}`);
+      return `${resizedUrl} ${w}w`;
+    })
+    .join(', ');
+};
+
 const useWindowWidth = () => {
   const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   useEffect(() => {
@@ -125,6 +137,8 @@ const GridImage = ({ photo, onClick, priority = false }: { photo: Photo; onClick
         {shouldLoad && (
           <img
             src={optimizedUrl}
+            srcSet={generateSrcSet(photo.url, photo.width, photo.height)}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             alt={photo.title}
             onLoad={() => setIsLoaded(true)}
             decoding={priority ? "sync" : "async"}

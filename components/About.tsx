@@ -107,6 +107,8 @@ const About: React.FC = () => {
                 {/* Main image with fade-in on load */}
                 <img
                   src="https://picsum.photos/seed/photographer/800/1000"
+                  srcSet="https://picsum.photos/seed/photographer/400/500 400w, https://picsum.photos/seed/photographer/800/1000 800w, https://picsum.photos/seed/photographer/1200/1500 1200w"
+                  sizes="(max-width: 768px) 80vw, 400px"
                   alt="Portrait of Photographer"
                   onLoad={() => setLoaded(true)}
                   className={`relative w-full h-full object-cover grayscale contrast-125 transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}

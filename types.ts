@@ -10,6 +10,11 @@ export interface Photo {
   focalLength?: string;
   year?: number;
   location?: string;
+  aperture?: string;
+  shutterSpeed?: string;
+  exposureCompensation?: string;
+  cameraModel?: string;
+  lens?: string;
 }
 
 export enum PhotoCategory {

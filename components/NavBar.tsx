@@ -1,44 +1,54 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NAV_LINKS } from '../constants';
-import { Sun, Moon, Globe, Grid, Layers, Archive, User, Mail } from 'lucide-react';
+import { Sun, Moon, Globe, Grid, Layers, Archive, User, Mail, Search, X } from 'lucide-react';
 import { useApp } from '../context';
 import { Translations } from '../types';
 
-const NavBar: React.FC = () => {
+interface NavBarProps {
+  onSearch?: (query: string) => void;
+}
+
+const NavBar: React.FC<NavBarProps> = ({ onSearch }) => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
     
   const { language, setLanguage, theme, toggleTheme, t } = useApp();
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 50;
-      setScrolled(prev => {
-        if (prev !== isScrolled) return isScrolled;
-        return prev;
-      });
+      if (ticking) return;
+      requestAnimationFrame(() => {
+        const isScrolled = window.scrollY > 50;
+        setScrolled(prev => {
+          if (prev !== isScrolled) return isScrolled;
+          return prev;
+        });
 
-      // Determine active section
-      const scrollPosition = window.scrollY + 250; 
-      
-      const sections = NAV_LINKS.map(link => link.href.substring(1));
-      
-      let current = '';
-      for (const sectionId of sections) {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            current = sectionId;
+        const scrollPosition = window.scrollY + 250;
+        const sections = NAV_LINKS.map(link => link.href.substring(1));
+        let current = '';
+        for (const sectionId of sections) {
+          const element = document.getElementById(sectionId);
+          if (element) {
+            const { offsetTop, offsetHeight } = element;
+            if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+              current = sectionId;
+            }
           }
         }
-      }
-      setActiveSection(current);
+        setActiveSection(current);
+        ticking = false;
+      });
+      ticking = true;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial check
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -107,15 +117,15 @@ const NavBar: React.FC = () => {
                   key={link.label}
                   href={link.href}
                   onClick={(e) => handleNavClick(e, link.href)}
-                  className={`text-xs uppercase tracking-widest font-medium transition-colors cursor-pointer relative group py-2 ${
-                    isActive 
-                      ? 'text-apple-dark dark:text-white' 
+                  className={`text-xs uppercase tracking-widest font-medium transition-[color] duration-500 cursor-pointer relative group py-2 ${
+                    isActive
+                      ? 'text-apple-dark dark:text-white font-semibold'
                       : 'text-apple-gray hover:text-apple-dark dark:text-gray-400 dark:hover:text-white'
                   }`}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   {t.nav[link.label as keyof Translations['nav']]}
-                  <span className={`absolute bottom-0 left-0 w-full h-[1px] bg-current transform origin-left transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-50'}`} />
+                  <span className={`absolute bottom-0 left-0 w-full h-[2px] bg-apple-dark dark:bg-white rounded-full transform origin-left transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
                 </a>
               );
             })}
@@ -123,6 +133,48 @@ const NavBar: React.FC = () => {
 
           {/* Top Right Actions (Visible on Mobile now too) */}
           <div className="flex items-center gap-4 md:gap-6">
+             {/* Search */}
+             {searchOpen ? (
+               <div className="flex items-center gap-2 bg-white dark:bg-white/10 rounded-full px-3 py-1.5 border border-gray-200 dark:border-white/20 animate-scale-in">
+                 <Search size={14} className="text-apple-gray dark:text-gray-400" />
+                 <input
+                   ref={searchInputRef}
+                   type="text"
+                   value={searchQuery}
+                   onChange={(e) => {
+                     setSearchQuery(e.target.value);
+                     onSearch?.(e.target.value);
+                   }}
+                   placeholder="Search photos…"
+                   aria-label="Search photos by title, category, or location"
+                   name="search"
+                   autoComplete="off"
+                   className="bg-transparent text-sm text-apple-dark dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none w-28 md:w-48"
+                 />
+                 <button
+                   onClick={() => {
+                     setSearchOpen(false);
+                     setSearchQuery('');
+                     onSearch?.('');
+                   }}
+                   className="text-apple-gray dark:text-gray-400 hover:text-apple-dark dark:hover:text-white"
+                 >
+                   <X size={14} />
+                 </button>
+               </div>
+             ) : (
+               <button
+                 onClick={() => {
+                   setSearchOpen(true);
+                   setTimeout(() => searchInputRef.current?.focus(), 100);
+                 }}
+                 className="text-apple-gray dark:text-gray-400 hover:text-apple-dark dark:hover:text-white transition-colors"
+                 aria-label="Search photos"
+               >
+                 <Search size={18} />
+               </button>
+             )}
+
              {/* Lang Toggle */}
              <button 
                onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
@@ -157,7 +209,7 @@ const NavBar: React.FC = () => {
                    key={link.label}
                    href={link.href}
                    onClick={(e) => handleNavClick(e, link.href)}
-                   className={`flex flex-col items-center justify-center w-full gap-1 transition-all duration-300 group ${
+                   className={`flex flex-col items-center justify-center w-full gap-1 transition-[color,transform] duration-300 group ${
                      isActive 
                        ? 'text-apple-blue dark:text-white' 
                        : 'text-gray-400 dark:text-gray-500'

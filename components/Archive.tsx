@@ -59,7 +59,7 @@ const ArchiveImage = ({ photo, onClick, viewMode }: { photo: Photo; onClick: () 
     <div 
       ref={containerRef}
       onClick={onClick}
-      className="group relative aspect-square cursor-pointer overflow-hidden rounded-xl bg-gray-100 dark:bg-white/5 shadow-soft hover:shadow-soft-hover dark:shadow-none transition-all duration-500 ease-fluid hover:-translate-y-1 hover:shadow-2xl"
+      className="group relative aspect-square cursor-pointer overflow-hidden rounded-xl bg-gray-100 dark:bg-white/5 shadow-soft hover:shadow-soft-hover dark:shadow-none transition-[opacity,transform,box-shadow] duration-500 ease-fluid hover:-translate-y-1 hover:shadow-2xl"
     >
       {/* Placeholder background */}
       <div className={`absolute inset-0 bg-gray-200 dark:bg-white/5 transition-opacity duration-500 ${isLoaded ? 'opacity-0' : 'opacity-100'}`} />
@@ -70,30 +70,31 @@ const ArchiveImage = ({ photo, onClick, viewMode }: { photo: Photo; onClick: () 
             srcSet={generateArchiveSrcSet(photo.url)}
             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 400px"
             alt={photo.title}
+            width={photo.width}
+            height={photo.height}
+            loading="lazy"
             onLoad={() => setIsLoaded(true)}
-            className={`w-full h-full object-cover transition-all duration-700 ease-fluid group-hover:scale-110 dark:opacity-90 dark:group-hover:opacity-100 ${
+            className={`w-full h-full object-cover transition-[opacity,transform] duration-700 ease-fluid group-hover:scale-110 dark:opacity-90 dark:group-hover:opacity-100 ${
                 isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'
             }`}
         />
       )}
 
-      {/* Subtle glow on hover */}
-      <div
-        className={`absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-500 opacity-0 group-hover:opacity-100`}
-        style={{
-          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.12) 0%, transparent 70%)',
-          boxShadow: 'inset 0 0 40px rgba(255,255,255,0.03)',
-        }}
-      />
+      {/* Hover overlay — unified with BentoGrid style */}
+      <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/80 via-black/10 to-transparent transition-opacity duration-500 ease-fluid opacity-0 group-hover:opacity-100 pointer-events-none" />
 
-      {/* Overlay info */}
-      <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px] transition-opacity duration-500 ease-fluid
-                      opacity-0 group-hover:opacity-100">
-         <div className="text-center text-white transition-transform duration-500 ease-fluid p-4
-                         translate-y-8 group-hover:translate-y-0">
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-1 opacity-80">{viewMode === 'time' ? photo.location : photo.year}</p>
-            <p className="text-lg font-serif italic drop-shadow-lg">{photo.title}</p>
-         </div>
+      {/* Metadata — bottom slide-up, same pattern as BentoGrid */}
+      <div className="absolute bottom-0 left-0 p-6 w-full z-30 pointer-events-none">
+        <div className="overflow-hidden py-1">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/90 mb-2 drop-shadow-md transition-all duration-500 ease-fluid translate-y-[150%] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-hover:delay-100">
+            {viewMode === 'time' ? photo.location : photo.year}
+          </p>
+        </div>
+        <div className="overflow-hidden py-1">
+          <h3 className="text-xl text-white font-light tracking-tight leading-none drop-shadow-md transition-all duration-500 ease-fluid translate-y-[150%] opacity-0 group-hover:translate-y-0 group-hover:opacity-100 group-hover:delay-200">
+            {photo.title}
+          </h3>
+        </div>
       </div>
     </div>
   );
@@ -138,11 +139,11 @@ const Archive: React.FC<ArchiveProps> = ({ items, onPhotoClick }) => {
   };
 
   return (
-    <section id="archive" ref={ref} className="py-32 bg-apple-bg dark:bg-[#0a0a0a] transition-colors duration-700 relative z-20">
+    <section id="archive" ref={ref} className="py-20 md:py-32 bg-apple-bg dark:bg-[#0a0a0a] transition-colors duration-700 relative z-20">
       <div className="max-w-[1800px] mx-auto px-6 md:px-12">
         
         {/* Header Section */}
-        <div className={`flex flex-col md:flex-row justify-between items-end mb-16 gap-8 transition-all duration-1000 ease-fluid transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`flex flex-col md:flex-row justify-between items-end mb-16 gap-8 transition-[opacity,transform] duration-1000 ease-fluid transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div>
             <h2 className="text-4xl md:text-6xl font-bold text-apple-dark dark:text-white tracking-tighter mb-4 transition-colors">
               {t.archive.title}
@@ -210,7 +211,7 @@ const Archive: React.FC<ArchiveProps> = ({ items, onPhotoClick }) => {
         </div>
 
         {/* Result Grid */}
-        <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 min-h-[400px] transition-all duration-500 ease-fluid ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+        <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 min-h-[400px] transition-opacity duration-300 ease-fluid ${isAnimating ? 'opacity-60' : 'opacity-100'}`}>
           {filteredItems.map((photo, index) => (
             <div
               key={photo.id}

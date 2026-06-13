@@ -57,10 +57,15 @@ export type Translations = {
   modal: {
     category: string;
     download: string;
+    downloaded: string;
+    prompt: string;
     iso: string;
     focal: string;
     year: string;
     location: string;
+    hintsNavigate: string;
+    hintsClose: string;
+    hintsZoom: string;
   };
   about: {
     philosophy: string;

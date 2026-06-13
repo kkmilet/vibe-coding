@@ -15,7 +15,7 @@ export const TRANSLATIONS: Record<string, Translations> = {
     hero: { title: 'Capture', subtitle: 'Invisible.', desc: 'A study of light, shadow, and the silence between them.', button: 'View Works' },
     grid: { header: 'Selected Works', seriesHeader: 'Featured Series' },
     archive: { title: 'The Archive', subtitle: 'Fragments organized by time and space.', modeTime: 'Timeline', modeLocation: 'Atlas', allYears: 'All Years', allLocations: 'Global' },
-    modal: { category: 'Category', download: 'Download Original', iso: 'ISO', focal: 'Lens', year: 'Year', location: 'Location' },
+    modal: { category: 'Category', download: 'Download Original', downloaded: 'Saved!', prompt: 'Click to download full resolution image', iso: 'ISO', focal: 'Lens', year: 'Year', location: 'Location', hintsNavigate: 'Navigate', hintsClose: 'Close', hintsZoom: 'Double-click to zoom' },
     about: { 
       philosophy: 'The Philosophy', 
       title: 'Obsessed with', 
@@ -31,7 +31,7 @@ export const TRANSLATIONS: Record<string, Translations> = {
     hero: { title: '捕捉', subtitle: '无形之美', desc: '对光影的研习，以及其间的静默。', button: '鉴赏作品' },
     grid: { header: '精选辑', seriesHeader: '专题系列' },
     archive: { title: '影像归档', subtitle: '按时间与空间整理的记忆碎片。', modeTime: '时间轴', modeLocation: '地理图集', allYears: '全部年份', allLocations: '全球足迹' },
-    modal: { category: '分类', download: '下载原图', iso: '感光度', focal: '焦距', year: '拍摄年份', location: '拍摄地点' },
+    modal: { category: '分类', download: '下载原图', downloaded: '已保存!', prompt: '点击下载全分辨率图片', iso: '感光度', focal: '焦距', year: '拍摄年份', location: '拍摄地点', hintsNavigate: '切换', hintsClose: '关闭', hintsZoom: '双击放大' },
     about: { 
       philosophy: '创作哲学', 
       title: '沉溺于', 

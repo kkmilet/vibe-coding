@@ -1,13 +1,21 @@
 
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
     <title>Lumina | Pro Vision</title>
+    <link rel="preconnect" href="https://aistudiocdn.com" />
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script>
+      // Set theme before paint to prevent FOUT. try/catch for Safari private browsing.
+      (function(){var t;try{t=localStorage.getItem('lumina-theme')}catch(e){}if(!t){t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'}document.documentElement.classList.add(t)})()
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript>
@@ -29,6 +37,7 @@
               'apple-dark': '#1d1d1f', // Softer black
               'apple-gray': '#86868b', // Secondary text
               'apple-blue': '#0071e3',
+              'surface-dark': '#0a0a0a', // Dark mode card surface (consistent)
             },
             boxShadow: {
               'soft': '0 8px 30px rgba(0,0,0,0.04)',
@@ -90,7 +99,8 @@
               slideInRight: {
                 '0%': { transform: 'translateX(30px)', opacity: '0.5' },
                 '100%': { transform: 'translateX(0)', opacity: '1' }
-              }
+              },
+              // All other keyframes defined in styles/scroll-animations.css
             }
           },
         },
@@ -119,7 +129,19 @@
       }
       html {
         scroll-behavior: smooth;
-        scroll-padding-top: 100px; /* Account for fixed navbar */
+        scroll-padding-top: 100px;
+      }
+      html.dark {
+        color-scheme: dark;
+      }
+      /* Respect user motion preference for Tailwind CDN animations */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+        html { scroll-behavior: auto; }
       }
       body {
         /* Default to light mode colors if JS fails */
@@ -166,6 +188,12 @@
       .delay-500 { animation-delay: 500ms; }
       .delay-700 { animation-delay: 700ms; }
 
+      /* Visible focus ring for keyboard navigation */
+      :focus-visible {
+        outline: 2px solid #0071e3;
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
       /* Screen reader only — visually hidden but accessible */
       .sr-only {
         position: absolute;

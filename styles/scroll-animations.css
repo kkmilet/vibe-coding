@@ -34,58 +34,33 @@
    Photo Detail Modal - Slide Animations
    ======================================== */
 
-/* Exit: slides out in the direction of navigation - fast fade out */
+/* === Photo-to-photo crossfade — pure opacity, nothing else === */
+@keyframes photoFadeOut {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes photoFadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Keep old slide keyframes for backward compatibility — now unused but harmless */
 @keyframes slideExitLeft {
-  0% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(-40px);
-  }
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(-60px); }
 }
-
-/* Exit: slides out in the direction of navigation - fast fade out */
 @keyframes slideExitRight {
-  0% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(40px);
-  }
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(60px); }
 }
-
-/* Enter: slides in from opposite direction - quick fade in */
-@keyframes slideEnterLeft {
-  0% {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  60% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Enter: slides in from opposite direction - quick fade in */
 @keyframes slideEnterRight {
-  0% {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  60% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  0% { opacity: 0; transform: translateX(60px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideEnterLeft {
+  0% { opacity: 0; transform: translateX(-60px); }
+  100% { opacity: 1; transform: translateX(0); }
 }
 
 /* Ambient breathing glow animation */

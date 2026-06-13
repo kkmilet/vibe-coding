@@ -15,13 +15,18 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('en');
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Read initial theme from DOM (set by inline script before paint)
+    const root = window.document.documentElement;
+    return root.classList.contains('light') ? 'light' : 'dark';
+  });
 
-  // Initialize Theme on mount
+  // Sync theme class and persist to localStorage
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
+    localStorage.setItem('lumina-theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {

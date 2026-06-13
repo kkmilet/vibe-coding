@@ -69,7 +69,7 @@ const About: React.FC = () => {
   const { ref, isVisible } = useScrollReveal({ threshold: 0.1, once: true });
 
   return (
-    <section id="about" ref={ref} className="py-40 bg-apple-bg dark:bg-black transition-colors duration-500">
+    <section id="about" ref={ref} className="py-24 md:py-40 bg-apple-bg dark:bg-black transition-colors duration-500">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
 
@@ -100,7 +100,7 @@ const About: React.FC = () => {
 
           {/* Visual Content - Frameless */}
           <div className="order-1 lg:order-2 relative group">
-             <div className="relative overflow-hidden aspect-[3/4] opacity-90 dark:opacity-80 group-hover:opacity-100 transition-opacity duration-1000 shadow-2xl dark:shadow-none">
+             <div className="relative overflow-hidden aspect-[3/4] group-hover:opacity-100 transition-[opacity,filter] duration-1000 shadow-2xl dark:shadow-[0_24px_48px_rgba(255,255,255,0.05)]">
                 {/* Placeholder - gray background while loading */}
                 <div className="absolute inset-0 bg-gray-200 dark:bg-gray-800" />
 
@@ -111,14 +111,11 @@ const About: React.FC = () => {
                   sizes="(max-width: 768px) 80vw, 400px"
                   alt="Portrait of Photographer"
                   onLoad={() => setLoaded(true)}
-                  className={`relative w-full h-full object-cover grayscale contrast-125 transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+                  className={`relative w-full h-full object-cover grayscale transition-all duration-700 ${loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
                 />
 
                 {/* Gradient Fade at bottom of image: Matches theme */}
-                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-apple-bg dark:from-black to-transparent transition-colors duration-500"></div>
-
-                {/* Frosted rim overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-apple-bg/30 dark:from-black/30 to-transparent backdrop-blur-[2px] pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-apple-bg dark:from-black to-transparent transition-colors duration-500 pointer-events-none" />
              </div>
           </div>
 
